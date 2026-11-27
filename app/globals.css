@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
-/*
- * Chinachem Group brand palette (researched from chinachemgroup.com stylesheets,
- * Nov 2026). Tailwind v4 @theme tokens override the default blue/slate scales,
- * so every existing blue-*/slate-* utility across the app picks up the brand
- * colors without touching any component.
- *
- * Primary:   #003329 deep forest green (buttons, headers, footer)
- * Secondary: #005452 / #15909c teal family
- * Accent:    #89c6cc soft aqua, #13ddcd mint highlight (sparingly — low contrast)
- * Neutrals:  warm greige family (#d9d1ce / #807775 / #272525)
- */
-@theme {
+:root {
+  /*
+   * Chinachem Group brand palette (researched from chinachemgroup.com
+   * stylesheets, Nov 2026). Tailwind v4 utilities resolve colors via
+   * var(--color-*), so plain :root declarations AFTER the theme layer
+   * deterministically override the default blue/slate scales — every
+   * existing blue-*/slate-* utility picks up the brand with zero
+   * component changes.
+   *
+   * Primary:   #003329 deep forest green · Secondary: teal family
+   * Accent:    #89c6cc soft aqua / #13ddcd mint (sparingly)
+   * Neutrals:  warm greige (#d9d1ce / #807775 / #272525)
+   */
   --color-blue-50: #f0f7f6;
   --color-blue-100: #dceeed;
   --color-blue-200: #b9dde0;
@@ -35,9 +36,7 @@
   --color-slate-800: #3a3532;
   --color-slate-900: #272525;
   --color-slate-950: #1a1715;
-}
 
-:root {
   --color-brand: #003329;
   --color-accent: #13ddcd;
 }
