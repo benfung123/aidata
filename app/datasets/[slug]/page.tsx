@@ -10,8 +10,11 @@ import { formatBytes, formatDate } from '@/lib/format';
 import { FormatBadge, ApiBadge, CsvBadge } from '@/components/Badges';
 import CopyButton from '@/components/CopyButton';
 import DatasetCard from '@/components/DatasetCard';
+import SeriesChart from '@/components/SeriesChart';
 
 const PREVIEW_POINTS = 12;
+// chart reads deeper history (cached per dataset, downsampled for display)
+const CHART_POINTS = 8000;
 
 async function incrementViews(id: string, current: number): Promise<void> {
   const supabase = await getPublicSupabase();
@@ -63,6 +66,8 @@ export default async function DatasetDetailPage({
   const resources = [...(dataset.resources ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const related = await getRelated(dataset);
   const seriesPreview = await getSeriesBundle(dataset.id, PREVIEW_POINTS);
+  const chartBundle =
+    seriesPreview.length > 0 ? await getSeriesBundle(dataset.id, CHART_POINTS) : [];
 
   const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aidata-liart.vercel.app'}/api/v1/datasets/${dataset.slug}`;
 
@@ -211,6 +216,16 @@ export default async function DatasetDetailPage({
             )}
           </div>
           <div className="mt-4 space-y-6">
+            <SeriesChart
+              lang={lang}
+              series={chartBundle
+                .filter((s) => s.observations.length >= 2)
+                .map((s) => ({
+                  name: (lang === 'zh' ? s.name_zh : s.name_en) ?? s.code,
+                  unit: s.unit,
+                  points: s.observations,
+                }))}
+            />
             {seriesPreview.map((s) => (
               <div key={s.code}>
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
