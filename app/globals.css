@@ -1,11 +1,49 @@
 @import "tailwindcss";
 
+/*
+ * Chinachem Group brand palette (researched from chinachemgroup.com stylesheets,
+ * Nov 2026). Tailwind v4 @theme tokens override the default blue/slate scales,
+ * so every existing blue-*/slate-* utility across the app picks up the brand
+ * colors without touching any component.
+ *
+ * Primary:   #003329 deep forest green (buttons, headers, footer)
+ * Secondary: #005452 / #15909c teal family
+ * Accent:    #89c6cc soft aqua, #13ddcd mint highlight (sparingly — low contrast)
+ * Neutrals:  warm greige family (#d9d1ce / #807775 / #272525)
+ */
+@theme {
+  --color-blue-50: #f0f7f6;
+  --color-blue-100: #dceeed;
+  --color-blue-200: #b9dde0;
+  --color-blue-300: #89c6cc;
+  --color-blue-400: #4aa8ab;
+  --color-blue-500: #15909c;
+  --color-blue-600: #0b6e63;
+  --color-blue-700: #005452;
+  --color-blue-800: #003329;
+  --color-blue-900: #0a3329;
+  --color-blue-950: #06231c;
+
+  --color-slate-50: #f8f7f6;
+  --color-slate-100: #f1efed;
+  --color-slate-200: #e5e2df;
+  --color-slate-300: #d9d1ce;
+  --color-slate-400: #a89f9b;
+  --color-slate-500: #807775;
+  --color-slate-600: #6d716f;
+  --color-slate-700: #4a4a4a;
+  --color-slate-800: #3a3532;
+  --color-slate-900: #272525;
+  --color-slate-950: #1a1715;
+}
+
 :root {
-  --color-brand: #1a5fb4;
+  --color-brand: #003329;
+  --color-accent: #13ddcd;
 }
 
 body {
   font-family: var(--font-noto-sans-tc), ui-sans-serif, system-ui, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #f8f7f6;
+  color: #272525;
 }
