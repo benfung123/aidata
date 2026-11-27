@@ -39,6 +39,7 @@ export const hkmaHibor: Adapter = {
     unit: '% p.a.',
     frequency: 'daily' as const,
     sourceUrl: 'https://www.hkma.gov.hk/eng/market-data/hk-interbank-ir/hk-interbank-ir-daily/',
+    dataUrl: 'https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/hk-interbank-ir-daily',
   })),
   async run(): Promise<AdapterSeriesResult[]> {
     const byCode = new Map<string, SeriesPoint[]>(TENORS.map((t) => [t.code, []]));

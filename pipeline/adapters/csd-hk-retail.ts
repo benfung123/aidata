@@ -13,6 +13,7 @@ const meta: AdapterSeriesMeta = {
   unit: 'index',
   frequency: 'monthly',
   sourceUrl: `${CSD_BASE}/en/web_table.html?id=620-67001`,
+  dataUrl: `${CSD_BASE}/data/MDT_75_620-67001_VAL_RS_Raw_M_hkd_d.csv`,
 };
 
 export const csdHkRetail: Adapter = {

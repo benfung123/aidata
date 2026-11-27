@@ -217,6 +217,21 @@ export async function runCatalog(): Promise<void> {
           next_run_at: nowIso, last_status: 'never',
         });
       }
+
+      // register the raw data-file/API link as a resource (idempotent by url)
+      if (meta.dataUrl) {
+        const isCsv = meta.dataUrl.split('?')[0].toLowerCase().endsWith('.csv');
+        const res = {
+          name_en: isCsv ? 'Source data file (CSV)' : 'Source data API (JSON)',
+          name_zh: isCsv ? '原始數據檔案（CSV）' : '原始數據 API（JSON）',
+          format: isCsv ? 'CSV' : 'JSON',
+          url: meta.dataUrl,
+          sort_order: 2,
+        };
+        const { data: exR } = await supabase.from('resources').select('id').eq('dataset_id', ds.id).eq('url', res.url).maybeSingle();
+        if (exR) await supabase.from('resources').update(res).eq('id', exR.id);
+        else await supabase.from('resources').insert({ ...res, dataset_id: ds.id });
+      }
     }
   }
 

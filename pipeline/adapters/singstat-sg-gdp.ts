@@ -14,6 +14,7 @@ const meta: AdapterSeriesMeta = {
   unit: 'S$ million',
   frequency: 'quarterly',
   sourceUrl: 'https://tablebuilder.singstat.gov.sg/table/TS/M015651',
+  dataUrl: 'https://tablebuilder.singstat.gov.sg/api/table/tabledata/M015651',
 };
 
 interface SgRow { seriesNo: string; rowText: string; uoM: string; columns: { key: string; value: string }[] }

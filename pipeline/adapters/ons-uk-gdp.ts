@@ -18,6 +18,7 @@ export const onsUkGdp: Adapter = {
       unit: '%',
       frequency: 'quarterly',
       sourceUrl: 'https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyr/ukea',
+      dataUrl: 'https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyr/ukea/data',
     },
   ],
   async run(): Promise<AdapterSeriesResult[]> {

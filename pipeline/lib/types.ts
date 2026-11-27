@@ -21,6 +21,8 @@ export interface AdapterSeriesMeta {
   unit: string;
   frequency: Frequency;
   sourceUrl: string;
+  /** direct data-file/API URL — registered as an extra resource row */
+  dataUrl?: string;
 }
 
 export interface Adapter {

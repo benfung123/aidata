@@ -13,6 +13,7 @@ const meta: AdapterSeriesMeta = {
   unit: 'HK$ million',
   frequency: 'quarterly',
   sourceUrl: `${CSD_BASE}/en/web_table.html?id=31`,
+  dataUrl: `${CSD_BASE}/data/MDT_69_310-31001_CUR_Raw_M_hkd_d.csv`,
 };
 
 export const csdHkGdp: Adapter = {

@@ -12,6 +12,7 @@ const meta: AdapterSeriesMeta = {
   unit: '%',
   frequency: 'monthly',
   sourceUrl: `${CSD_BASE}/en/web_table.html?id=210-06103`,
+  dataUrl: `${CSD_BASE}/data/MDT_55_210-06103_UR_Rate_1dp_percent_n.csv`,
 };
 
 export const csdHkUnemployment: Adapter = {
