@@ -6,8 +6,8 @@
     "searchPlaceholder": "搜尋開放數據…"
   },
   "home": {
-    "heroTitle": "香港開放數據目錄",
-    "heroSubtitle": "匯集香港各類公開數據集，提供統一的中英雙語目錄、檔案下載及 API 存取，方便開發者、研究人員及公眾使用。",
+    "heroTitle": "開放數據目錄",
+    "heroSubtitle": "匯集香港、新加坡、英國等地公開數據集，提供統一的中英雙語目錄、檔案下載及 API 存取，方便開發者、研究人員及公眾使用。",
     "searchButton": "搜尋",
     "stats": {
       "datasets": "數據集",

@@ -6,8 +6,8 @@
     "searchPlaceholder": "Search open data…"
   },
   "home": {
-    "heroTitle": "Hong Kong Open Data Catalogue",
-    "heroSubtitle": "A unified bilingual catalogue of Hong Kong public datasets with file downloads and API access — built for developers, researchers, and the public.",
+    "heroTitle": "Open Data Catalogue",
+    "heroSubtitle": "A unified bilingual catalogue of open datasets from Hong Kong and beyond — file downloads and API access, built for developers, researchers, and the public.",
     "searchButton": "Search",
     "stats": {
       "datasets": "Datasets",

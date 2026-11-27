@@ -14,11 +14,11 @@ const notoSansTc = Noto_Sans_TC({
 
 export const metadata: Metadata = {
   title: {
-    default: 'AIData — 香港開放數據目錄 Hong Kong Open Data Catalogue',
+    default: 'AIData — 開放數據目錄 Open Data Catalogue',
     template: '%s | AIData',
   },
   description:
-    '香港開放數據目錄 — bilingual open-data catalogue for Hong Kong. 中英雙語開放數據目錄。',
+    '開放數據目錄 — bilingual open-data catalogue for Hong Kong and beyond. 中英雙語開放數據目錄。',
 };
 
 export default async function RootLayout({
