@@ -31,6 +31,67 @@ async function incrementViews(id: string, current: number): Promise<void> {
     .then(() => {}, () => {});
 }
 
+type SeriesPreview = {
+  code: string;
+  name_en: string | null;
+  name_zh: string | null;
+  unit: string | null;
+  frequency: string;
+  observations: { period: string; value: number }[];
+};
+
+const PREVIEW_POINTS = 12;
+
+async function getSeriesPreview(datasetId: string): Promise<SeriesPreview[]> {
+  const supabase = await getPublicSupabase();
+  const { data: seriesRows } = await supabase
+    .from('series')
+    .select('id, code, name_en, name_zh, unit, frequency')
+    .eq('dataset_id', datasetId)
+    .order('code');
+  const series = (seriesRows ?? []) as {
+    id: string;
+    code: string;
+    name_en: string | null;
+    name_zh: string | null;
+    unit: string | null;
+    frequency: string;
+  }[];
+  if (series.length === 0) return [];
+
+  const { data: obsRows } = await supabase
+    .from('observations')
+    .select('series_id, period, value')
+    .in(
+      'series_id',
+      series.map((s) => s.id),
+    )
+    .order('period', { ascending: false })
+    .limit(PREVIEW_POINTS * series.length);
+
+  const grouped = new Map<string, { period: string; value: number }[]>();
+  for (const row of (obsRows ?? []) as {
+    series_id: string;
+    period: string;
+    value: number;
+  }[]) {
+    const list = grouped.get(row.series_id) ?? [];
+    if (list.length < PREVIEW_POINTS) {
+      list.push({ period: row.period, value: row.value });
+      grouped.set(row.series_id, list);
+    }
+  }
+
+  return series.map((s) => ({
+    code: s.code,
+    name_en: s.name_en,
+    name_zh: s.name_zh,
+    unit: s.unit,
+    frequency: s.frequency,
+    observations: (grouped.get(s.id) ?? []).slice().reverse(),
+  }));
+}
+
 async function getRelated(dataset: Dataset): Promise<Dataset[]> {
   const cats = datasetCategories(dataset);
   if (cats.length === 0) return [];
@@ -78,6 +139,7 @@ export default async function DatasetDetailPage({
   const cats = datasetCategories(dataset);
   const resources = [...(dataset.resources ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const related = await getRelated(dataset);
+  const seriesPreview = await getSeriesPreview(dataset.id);
 
   const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aidata-liart.vercel.app'}/api/v1/datasets/${dataset.slug}`;
 
@@ -197,6 +259,64 @@ export default async function DatasetDetailPage({
           </table>
         </div>
       </section>
+
+      {/* collected data preview */}
+      {seriesPreview.length > 0 && (
+        <section className="mt-8 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold text-slate-900">{dict.detail.dataTitle}</h2>
+            {dataset.api_enabled && (
+              <a
+                href={`/api/v1/datasets/${dataset.slug}/series`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-blue-700 hover:underline"
+              >
+                {dict.detail.dataJsonLink} ↗
+              </a>
+            )}
+          </div>
+          <div className="mt-4 space-y-6">
+            {seriesPreview.map((s) => (
+              <div key={s.code}>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    {lang === 'zh' ? s.name_zh ?? s.code : s.name_en ?? s.code}
+                  </h3>
+                  <span className="text-xs text-slate-500">
+                    {s.frequency}
+                    {s.unit ? ` · ${s.unit}` : ''}
+                  </span>
+                </div>
+                {s.observations.length === 0 ? (
+                  <p className="mt-2 text-xs italic text-slate-400">{dict.detail.dataEmpty}</p>
+                ) : (
+                  <div className="mt-2 overflow-x-auto">
+                    <table className="w-full min-w-[420px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+                          <th className="py-1.5 pr-4 font-medium">{dict.detail.dataPeriod}</th>
+                          <th className="py-1.5 font-medium">{dict.detail.dataValue}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {s.observations.map((o) => (
+                          <tr key={o.period} className="border-b border-slate-100 last:border-0">
+                            <td className="py-1.5 pr-4 text-slate-600">{o.period}</td>
+                            <td className="py-1.5 text-slate-900">
+                              {o.value.toLocaleString(lang === 'zh' ? 'zh-HK' : 'en-GB')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* developer API hint */}
       {dataset.api_enabled && (

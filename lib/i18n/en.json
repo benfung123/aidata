@@ -58,7 +58,13 @@
     "copied": "Copied",
     "relatedTitle": "Related datasets",
     "backToDatasets": "Back to dataset catalogue",
-    "notFound": "This dataset does not exist or is not published."
+    "notFound": "This dataset does not exist or is not published.",
+    "dataTitle": "Data",
+    "dataPeriod": "Period",
+    "dataValue": "Value",
+    "dataEmpty": "Data collection in progress — the pipeline has not written any observations yet.",
+    "dataJsonLink": "Full data JSON",
+    "points": "points"
   },
   "organizations": {
     "title": "Organizations",

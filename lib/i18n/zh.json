@@ -58,7 +58,13 @@
     "copied": "已複製",
     "relatedTitle": "相關數據集",
     "backToDatasets": "返回數據集目錄",
-    "notFound": "數據集不存在或尚未發佈。"
+    "notFound": "數據集不存在或尚未發佈。",
+    "dataTitle": "數據",
+    "dataPeriod": "期間",
+    "dataValue": "數值",
+    "dataEmpty": "數據收集進行中 — pipeline 尚未成功寫入數據點。",
+    "dataJsonLink": "完整數據 JSON",
+    "points": "數據點"
   },
   "organizations": {
     "title": "機構",
