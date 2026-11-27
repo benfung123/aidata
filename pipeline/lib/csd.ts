@@ -18,8 +18,10 @@ export interface CsdComp {
   table_component_list: CsdComponent[];
 }
 
+const CSD_HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; aidata-pipeline/1.0)' };
+
 export async function fetchComp(tableId: string): Promise<CsdComp> {
-  const res = await fetch(`${CSD_BASE}/data/table_${tableId}_comp.json`);
+  const res = await fetch(`${CSD_BASE}/data/table_${tableId}_comp.json`, { headers: CSD_HEADERS });
   if (!res.ok) throw new Error(`CSD comp ${tableId}: HTTP ${res.status}`);
   return (await res.json()) as CsdComp;
 }
@@ -59,7 +61,7 @@ export function parseCsv(text: string): Record<string, string>[] {
 
 export async function fetchMdt(themeId: string, tableId: string, statVar: string, statPres: string): Promise<Record<string, string>[]> {
   const url = mdtUrl(themeId, tableId, statVar, statPres);
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: CSD_HEADERS });
   if (!res.ok) throw new Error(`CSD MDT ${url}: HTTP ${res.status}`);
   return parseCsv(await res.text());
 }
