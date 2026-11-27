@@ -1,0 +1,116 @@
+'use client';
+
+import { useState } from 'react';
+import { useActionState } from 'react';
+import { deleteOrganization, saveOrganization } from '@/app/admin/actions';
+import { dictFor } from '@/lib/i18n/dicts';
+import type { Organization } from '@/lib/types';
+import DeleteButton from './DeleteButton';
+
+const dict = dictFor('zh');
+
+const inputCls =
+  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100';
+const labelCls = 'mb-1 block text-sm font-medium text-slate-700';
+
+function OrgFields({ initial }: { initial?: Organization }) {
+  return (
+    <>
+      {initial && <input type="hidden" name="id" value={initial.id} />}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={labelCls}>{dict.admin.nameZh} *</label>
+          <input name="name_zh" required defaultValue={initial?.name_zh ?? ''} className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>{dict.admin.nameEn} *</label>
+          <input name="name_en" required defaultValue={initial?.name_en ?? ''} className={inputCls} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelCls}>{dict.admin.website}</label>
+          <input name="website" defaultValue={initial?.website ?? ''} placeholder="https://…" className={inputCls} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+export function NewOrgForm() {
+  const [state, formAction, pending] = useActionState(saveOrganization, { ok: false, message: '' });
+  return (
+    <form action={formAction} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="mb-4 text-sm font-bold text-slate-900">{dict.admin.addNew}</h2>
+      <OrgFields />
+      {state.message && !state.ok && (
+        <p className="mt-3 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">{state.message}</p>
+      )}
+      <button
+        type="submit"
+        disabled={pending}
+        className="mt-4 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50"
+      >
+        {pending ? dict.admin.saving : dict.admin.save}
+      </button>
+    </form>
+  );
+}
+
+export function OrgRow({ org }: { org: Organization }) {
+  const [editing, setEditing] = useState(false);
+  const [state, formAction, pending] = useActionState(saveOrganization, { ok: false, message: '' });
+  const [delState, delAction, delPending] = useActionState(deleteOrganization, { ok: false, message: '' });
+
+  if (editing) {
+    return (
+      <form action={formAction} className="rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+        <OrgFields initial={org} />
+        {state.message && !state.ok && (
+          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">{state.message}</p>
+        )}
+        <div className="mt-4 flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50"
+          >
+            {pending ? dict.admin.saving : dict.admin.save}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditing(false)}
+            className="text-sm font-medium text-slate-600 hover:text-slate-900"
+          >
+            ✕
+          </button>
+        </div>
+      </form>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <div className="min-w-0 flex-1">
+        <div className="font-medium text-slate-900">{org.name_zh}</div>
+        <div className="text-xs text-slate-500">
+          {org.name_en} · <span className="font-mono">{org.slug}</span>
+          {org.website && ` · ${org.website.replace(/^https?:\/\//, '')}`}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="text-sm font-medium text-blue-700 hover:underline"
+      >
+        {dict.admin.edit}
+      </button>
+      <form action={delAction}>
+        <input type="hidden" name="id" value={org.id} />
+        {delPending ? (
+          <span className="text-sm text-slate-400">…</span>
+        ) : delState.ok ? null : (
+          <DeleteButton label={dict.admin.delete} confirmMessage={dict.admin.deleteConfirm} />
+        )}
+      </form>
+    </div>
+  );
+}
