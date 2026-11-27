@@ -1,70 +1,34 @@
 import Link from 'next/link';
 import { getDict, getLang } from '@/lib/i18n';
-import { getPublicSupabase } from '@/lib/supabase/server';
 import type { Category, Dataset } from '@/lib/types';
 import DatasetCard from '@/components/DatasetCard';
 import { formatCount } from '@/lib/format';
+import {
+  getPublishedDatasets,
+  getAllCategories,
+  getAllOrganizations,
+  getStats,
+} from '@/lib/public-data';
+import { datasetCategories } from '@/lib/catalog';
 
 interface CategoryWithCount extends Category {
   dataset_count: number;
 }
 
-async function getStats() {
-  const supabase = await getPublicSupabase();
-  const [datasets, orgs, resources, api] = await Promise.all([
-    supabase
-      .from('datasets')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'published'),
-    supabase
-      .from('organizations')
-      .select('id', { count: 'exact', head: true }),
-    supabase.from('resources').select('id', { count: 'exact', head: true }),
-    supabase
-      .from('datasets')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'published')
-      .eq('api_enabled', true),
-  ]);
-  return {
-    datasets: datasets.count ?? 0,
-    organizations: orgs.count ?? 0,
-    resources: resources.count ?? 0,
-    apiEnabled: api.count ?? 0,
-  };
-}
-
 async function getCategories(): Promise<CategoryWithCount[]> {
-  const supabase = await getPublicSupabase();
-  const { data: cats } = await supabase
-    .from('categories')
-    .select('*')
-    .order('sort_order', { ascending: true });
-
-  const { data: links } = await supabase
-    .from('dataset_categories')
-    .select('category_id');
-
+  const [cats, datasets] = await Promise.all([getAllCategories(), getPublishedDatasets()]);
   const counts = new Map<string, number>();
-  for (const l of links ?? []) {
-    counts.set(l.category_id, (counts.get(l.category_id) ?? 0) + 1);
+  for (const d of datasets) {
+    for (const c of datasetCategories(d)) {
+      counts.set(c.id, (counts.get(c.id) ?? 0) + 1);
+    }
   }
-
-  return (cats ?? []).map((c: Category) => ({
-    ...c,
-    dataset_count: counts.get(c.id) ?? 0,
-  }));
+  return cats.map((c) => ({ ...c, dataset_count: counts.get(c.id) ?? 0 }));
 }
 
 async function getLatestDatasets(): Promise<Dataset[]> {
-  const supabase = await getPublicSupabase();
-  const { data } = await supabase
-    .from('datasets')
-    .select('*, organizations(*)')
-    .eq('status', 'published')
-    .order('updated_at', { ascending: false })
-    .limit(8);
-  return (data ?? []) as Dataset[];
+  const datasets = await getPublishedDatasets();
+  return datasets.slice(0, 8);
 }
 
 export default async function HomePage() {

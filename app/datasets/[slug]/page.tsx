@@ -4,22 +4,14 @@ import type { Metadata } from 'next';
 import { getDict, getLang } from '@/lib/i18n';
 import { getPublicSupabase } from '@/lib/supabase/server';
 import { datasetCategories } from '@/lib/catalog';
+import { getDatasetBySlug, getPublishedDatasets, getSeriesBundle } from '@/lib/public-data';
 import type { Dataset } from '@/lib/types';
 import { formatBytes, formatDate } from '@/lib/format';
 import { FormatBadge, ApiBadge } from '@/components/Badges';
 import CopyButton from '@/components/CopyButton';
 import DatasetCard from '@/components/DatasetCard';
 
-async function getDataset(slug: string): Promise<Dataset | null> {
-  const supabase = await getPublicSupabase();
-  const { data } = await supabase
-    .from('datasets')
-    .select('*, organizations(*), resources(*), dataset_categories(categories(*))')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .maybeSingle();
-  return (data as Dataset) ?? null;
-}
+const PREVIEW_POINTS = 12;
 
 async function incrementViews(id: string, current: number): Promise<void> {
   const supabase = await getPublicSupabase();
@@ -31,83 +23,14 @@ async function incrementViews(id: string, current: number): Promise<void> {
     .then(() => {}, () => {});
 }
 
-type SeriesPreview = {
-  code: string;
-  name_en: string | null;
-  name_zh: string | null;
-  unit: string | null;
-  frequency: string;
-  observations: { period: string; value: number }[];
-};
-
-const PREVIEW_POINTS = 12;
-
-async function getSeriesPreview(datasetId: string): Promise<SeriesPreview[]> {
-  const supabase = await getPublicSupabase();
-  const { data: seriesRows } = await supabase
-    .from('series')
-    .select('id, code, name_en, name_zh, unit, frequency')
-    .eq('dataset_id', datasetId)
-    .order('code');
-  const series = (seriesRows ?? []) as {
-    id: string;
-    code: string;
-    name_en: string | null;
-    name_zh: string | null;
-    unit: string | null;
-    frequency: string;
-  }[];
-  if (series.length === 0) return [];
-
-  const { data: obsRows } = await supabase
-    .from('observations')
-    .select('series_id, period, value')
-    .in(
-      'series_id',
-      series.map((s) => s.id),
-    )
-    .order('period', { ascending: false })
-    .limit(PREVIEW_POINTS * series.length);
-
-  const grouped = new Map<string, { period: string; value: number }[]>();
-  for (const row of (obsRows ?? []) as {
-    series_id: string;
-    period: string;
-    value: number;
-  }[]) {
-    const list = grouped.get(row.series_id) ?? [];
-    if (list.length < PREVIEW_POINTS) {
-      list.push({ period: row.period, value: row.value });
-      grouped.set(row.series_id, list);
-    }
-  }
-
-  return series.map((s) => ({
-    code: s.code,
-    name_en: s.name_en,
-    name_zh: s.name_zh,
-    unit: s.unit,
-    frequency: s.frequency,
-    observations: (grouped.get(s.id) ?? []).slice().reverse(),
-  }));
-}
-
 async function getRelated(dataset: Dataset): Promise<Dataset[]> {
   const cats = datasetCategories(dataset);
   if (cats.length === 0) return [];
-  const supabase = await getPublicSupabase();
-  const { data } = await supabase
-    .from('datasets')
-    .select('*, organizations(*), resources(*), dataset_categories(categories(*))')
-    .eq('status', 'published')
-    .in(
-      'dataset_categories.category_id',
-      cats.map((c) => c.id),
-    )
-    .neq('id', dataset.id)
-    .order('updated_at', { ascending: false })
-    .limit(4);
-  return (data ?? []) as Dataset[];
+  const catIds = new Set(cats.map((c) => c.id));
+  const all = await getPublishedDatasets();
+  return all
+    .filter((d) => d.id !== dataset.id && datasetCategories(d).some((c) => catIds.has(c.id)))
+    .slice(0, 4);
 }
 
 function MetaItem({ label, children }: { label: string; children: React.ReactNode }) {
@@ -128,7 +51,7 @@ export default async function DatasetDetailPage({
   const lang = await getLang();
   const dict = await getDict();
 
-  const dataset = await getDataset(slug);
+  const dataset = await getDatasetBySlug(slug);
   if (!dataset) notFound();
 
   void incrementViews(dataset.id, dataset.view_count);
@@ -139,7 +62,7 @@ export default async function DatasetDetailPage({
   const cats = datasetCategories(dataset);
   const resources = [...(dataset.resources ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const related = await getRelated(dataset);
-  const seriesPreview = await getSeriesPreview(dataset.id);
+  const seriesPreview = await getSeriesBundle(dataset.id, PREVIEW_POINTS);
 
   const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aidata-liart.vercel.app'}/api/v1/datasets/${dataset.slug}`;
 

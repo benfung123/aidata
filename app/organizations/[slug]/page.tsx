@@ -2,29 +2,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getDict, getLang } from '@/lib/i18n';
-import { getPublicSupabase } from '@/lib/supabase/server';
+import { getAllOrganizations, getPublishedDatasets } from '@/lib/public-data';
 import type { Dataset, Organization } from '@/lib/types';
 import DatasetCard from '@/components/DatasetCard';
 
 async function getOrg(slug: string): Promise<Organization | null> {
-  const supabase = await getPublicSupabase();
-  const { data } = await supabase
-    .from('organizations')
-    .select('*')
-    .eq('slug', slug)
-    .maybeSingle();
-  return (data as Organization) ?? null;
-}
-
-async function getOrgDatasets(orgId: string): Promise<Dataset[]> {
-  const supabase = await getPublicSupabase();
-  const { data } = await supabase
-    .from('datasets')
-    .select('*, organizations(*), resources(*), dataset_categories(categories(*))')
-    .eq('organization_id', orgId)
-    .eq('status', 'published')
-    .order('updated_at', { ascending: false });
-  return (data ?? []) as Dataset[];
+  const orgs = await getAllOrganizations();
+  return orgs.find((o) => o.slug === slug) ?? null;
 }
 
 export default async function OrganizationDetailPage({
@@ -39,7 +23,9 @@ export default async function OrganizationDetailPage({
   const org = await getOrg(slug);
   if (!org) notFound();
 
-  const datasets = await getOrgDatasets(org.id);
+  const datasets = (await getPublishedDatasets()).filter(
+    (d) => d.organization_id === org.id,
+  );
   const name = lang === 'zh' ? org.name_zh : org.name_en;
   const altName = lang === 'zh' ? org.name_en : org.name_zh;
 

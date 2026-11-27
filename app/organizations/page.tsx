@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getDict, getLang } from '@/lib/i18n';
-import { getPublicSupabase } from '@/lib/supabase/server';
+import { getAllOrganizations, getPublishedDatasets } from '@/lib/public-data';
 import type { Organization } from '@/lib/types';
 
 export const metadata: Metadata = {
@@ -15,23 +15,15 @@ interface OrgWithCount extends Organization {
 export default async function OrganizationsPage() {
   const lang = await getLang();
   const dict = await getDict();
-  const supabase = await getPublicSupabase();
 
-  const [{ data: orgs }, { data: links }] = await Promise.all([
-    supabase.from('organizations').select('*').order('name_en', { ascending: true }),
-    supabase
-      .from('datasets')
-      .select('id, organization_id')
-      .eq('status', 'published'),
-  ]);
+  const [orgs, datasets] = await Promise.all([getAllOrganizations(), getPublishedDatasets()]);
 
   const counts = new Map<string, number>();
-  for (const d of links ?? []) {
-    const oid = (d as { organization_id: string | null }).organization_id;
-    if (oid) counts.set(oid, (counts.get(oid) ?? 0) + 1);
+  for (const d of datasets) {
+    if (d.organization_id) counts.set(d.organization_id, (counts.get(d.organization_id) ?? 0) + 1);
   }
 
-  const rows: OrgWithCount[] = (orgs ?? []).map((o: Organization) => ({
+  const rows: OrgWithCount[] = orgs.map((o) => ({
     ...o,
     dataset_count: counts.get(o.id) ?? 0,
   }));
