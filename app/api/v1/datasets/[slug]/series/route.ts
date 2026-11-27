@@ -72,7 +72,14 @@ export async function GET(
 ) {
   const { slug } = await params;
   const limitParam = request.nextUrl.searchParams.get('limit');
-  const perSeries = Math.min(Math.max(parseInt(limitParam ?? '500', 10) || 500, 1), 20000);
+  const isCsv = request.nextUrl.searchParams.get('format') === 'csv';
+  // JSON: default 500/series (API consumers page through); CSV export: all rows
+  const maxCap = isCsv ? 200000 : 20000;
+  const fallback = isCsv ? maxCap : 500;
+  const perSeries = Math.min(
+    Math.max(parseInt(limitParam ?? String(fallback), 10) || fallback, 1),
+    maxCap,
+  );
 
   const supabase = await getPublicSupabase();
 
@@ -88,6 +95,31 @@ export async function GET(
   }
 
   const series = await getApiSeriesBundle(dataset.id as string, perSeries);
+
+  if (isCsv) {
+    const esc = (v: string | null | undefined) => {
+      const s = v ?? '';
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header =
+      'series_code,series_name_en,series_name_zh,unit,frequency,period,value';
+    const lines = series.flatMap((s) =>
+      s.observations.map(
+        (o) =>
+          `${esc(s.code)},${esc(s.name_en)},${esc(s.name_zh)},${esc(s.unit)},${esc(
+            s.frequency,
+          )},${esc(o.period)},${o.value}`,
+      ),
+    );
+    const csv = '\uFEFF' + [header, ...lines].join('\r\n');
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${slug}.csv"`,
+        'Cache-Control': 's-maxage=300, stale-while-revalidate=900',
+      },
+    });
+  }
 
   return NextResponse.json(
     {

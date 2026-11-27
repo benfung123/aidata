@@ -64,7 +64,8 @@
     "dataValue": "數值",
     "dataEmpty": "數據收集進行中 — pipeline 尚未成功寫入數據點。",
     "dataJsonLink": "完整數據 JSON",
-    "points": "數據點"
+    "points": "數據點",
+    "dataCsvLink": "下載 CSV"
   },
   "organizations": {
     "title": "機構",

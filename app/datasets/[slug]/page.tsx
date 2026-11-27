@@ -189,14 +189,22 @@ export default async function DatasetDetailPage({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-bold text-slate-900">{dict.detail.dataTitle}</h2>
             {dataset.api_enabled && (
-              <a
-                href={`/api/v1/datasets/${dataset.slug}/series`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-blue-700 hover:underline"
-              >
-                {dict.detail.dataJsonLink} ↗
-              </a>
+              <div className="flex items-center gap-4">
+                <a
+                  href={`/api/v1/datasets/${dataset.slug}/series?format=csv`}
+                  className="rounded-lg bg-blue-700 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-blue-800"
+                >
+                  ⬇ {dict.detail.dataCsvLink}
+                </a>
+                <a
+                  href={`/api/v1/datasets/${dataset.slug}/series`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-700 hover:underline"
+                >
+                  {dict.detail.dataJsonLink} ↗
+                </a>
+              </div>
             )}
           </div>
           <div className="mt-4 space-y-6">

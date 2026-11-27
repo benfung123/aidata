@@ -64,7 +64,8 @@
     "dataValue": "Value",
     "dataEmpty": "Data collection in progress — the pipeline has not written any observations yet.",
     "dataJsonLink": "Full data JSON",
-    "points": "points"
+    "points": "points",
+    "dataCsvLink": "Download CSV"
   },
   "organizations": {
     "title": "Organizations",
