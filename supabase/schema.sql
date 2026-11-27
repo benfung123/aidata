@@ -62,7 +62,10 @@ create table if not exists public.dataset_categories (
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
 begin
-  new.updated_at = now();
+  -- only bump updated_at when something other than view_count changed
+  if to_jsonb(new) - 'view_count' is distinct from to_jsonb(old) - 'view_count' then
+    new.updated_at = now();
+  end if;
   return new;
 end;
 $$;
