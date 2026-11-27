@@ -110,7 +110,7 @@ const DATASETS: DatasetDef[] = [
     desc_zh: '新加坡統計局 Table Builder 公布的新加坡本地生產總值（當時市價，按季）。',
     frequency: '每季',
     license: 'https://www.singstat.gov.sg/terms-and-conditions',
-    source_url: 'https://tablebuilder.singstat.gov.sg/table/TS/M015941',
+    source_url: 'https://tablebuilder.singstat.gov.sg/table/TS/M015651',
   },
   {
     slug: 'sg-unemployment',
