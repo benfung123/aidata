@@ -38,7 +38,8 @@
     "empty": "找不到符合條件的數據集。",
     "updated": "更新於",
     "resources": "資源",
-    "apiBadge": "API"
+    "apiBadge": "API",
+    "csvBadge": "CSV 下載"
   },
   "detail": {
     "updated": "更新日期",

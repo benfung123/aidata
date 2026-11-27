@@ -7,7 +7,7 @@ import { datasetCategories } from '@/lib/catalog';
 import { getDatasetBySlug, getPublishedDatasets, getSeriesBundle } from '@/lib/public-data';
 import type { Dataset } from '@/lib/types';
 import { formatBytes, formatDate } from '@/lib/format';
-import { FormatBadge, ApiBadge } from '@/components/Badges';
+import { FormatBadge, ApiBadge, CsvBadge } from '@/components/Badges';
 import CopyButton from '@/components/CopyButton';
 import DatasetCard from '@/components/DatasetCard';
 
@@ -78,7 +78,10 @@ export default async function DatasetDetailPage({
       <div className="mt-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{title}</h1>
-          {dataset.api_enabled && <ApiBadge label={dict.datasets.apiBadge} />}
+          <div className="flex items-center gap-1.5">
+            {dataset.api_enabled && <CsvBadge label={dict.datasets.csvBadge} />}
+            {dataset.api_enabled && <ApiBadge label={dict.datasets.apiBadge} />}
+          </div>
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">

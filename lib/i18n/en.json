@@ -38,7 +38,8 @@
     "empty": "No datasets match your filters.",
     "updated": "Updated",
     "resources": "resources",
-    "apiBadge": "API"
+    "apiBadge": "API",
+    "csvBadge": "CSV"
   },
   "detail": {
     "updated": "Updated",

@@ -28,6 +28,14 @@ export function ApiBadge({ label }: { label: string }) {
   );
 }
 
+export function CsvBadge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center rounded border border-blue-300 bg-blue-100 px-1.5 py-0.5 text-xs font-semibold text-blue-800">
+      ⬇ {label}
+    </span>
+  );
+}
+
 export function StatusBadge({ status, draftLabel, publishedLabel }: { status: 'draft' | 'published'; draftLabel: string; publishedLabel: string }) {
   const published = status === 'published';
   return (

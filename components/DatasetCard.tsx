@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Dataset, Lang } from '@/lib/types';
 import { dictFor } from '@/lib/i18n';
 import { formatDate } from '@/lib/format';
-import { FormatBadge, ApiBadge } from '@/components/Badges';
+import { FormatBadge, ApiBadge, CsvBadge } from '@/components/Badges';
 
 export default function DatasetCard({
   dataset,
@@ -24,7 +24,10 @@ export default function DatasetCard({
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="line-clamp-2 font-semibold text-slate-900">{title}</h3>
-        {dataset.api_enabled && <ApiBadge label={dict.datasets.apiBadge} />}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {dataset.api_enabled && <CsvBadge label={dict.datasets.csvBadge} />}
+          {dataset.api_enabled && <ApiBadge label={dict.datasets.apiBadge} />}
+        </div>
       </div>
       {org && (
         <p className="mt-1 text-sm text-blue-700">
