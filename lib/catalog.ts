@@ -127,8 +127,12 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
   }
 
   return {
-    categories: cats.map((c) => ({ ...c, dataset_count: catCounts.get(c.id) ?? 0 })),
-    organizations: orgs.map((o) => ({ ...o, dataset_count: orgCounts.get(o.id) ?? 0 })),
+    categories: cats
+      .filter((c) => (catCounts.get(c.id) ?? 0) > 0)
+      .map((c) => ({ ...c, dataset_count: catCounts.get(c.id) ?? 0 })),
+    organizations: orgs
+      .filter((o) => (orgCounts.get(o.id) ?? 0) > 0)
+      .map((o) => ({ ...o, dataset_count: orgCounts.get(o.id) ?? 0 })),
     formats: Array.from(fmtCounts.entries())
       .map(([format, count]) => ({ format, count }))
       .sort((a, b) => a.format.localeCompare(b.format)),
