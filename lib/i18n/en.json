@@ -39,7 +39,8 @@
     "updated": "Updated",
     "resources": "resources",
     "apiBadge": "API",
-    "csvBadge": "CSV"
+    "csvBadge": "CSV",
+    "allLabel": "All"
   },
   "detail": {
     "updated": "Updated",

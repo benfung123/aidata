@@ -39,7 +39,8 @@
     "updated": "更新於",
     "resources": "資源",
     "apiBadge": "API",
-    "csvBadge": "CSV 下載"
+    "csvBadge": "CSV 下載",
+    "allLabel": "全部"
   },
   "detail": {
     "updated": "更新日期",
