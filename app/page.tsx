@@ -23,7 +23,9 @@ async function getCategories(): Promise<CategoryWithCount[]> {
       counts.set(c.id, (counts.get(c.id) ?? 0) + 1);
     }
   }
-  return cats.map((c) => ({ ...c, dataset_count: counts.get(c.id) ?? 0 }));
+  return cats
+    .filter((c) => (counts.get(c.id) ?? 0) > 0)
+    .map((c) => ({ ...c, dataset_count: counts.get(c.id) ?? 0 }));
 }
 
 async function getLatestDatasets(): Promise<Dataset[]> {

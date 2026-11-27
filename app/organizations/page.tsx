@@ -23,10 +23,12 @@ export default async function OrganizationsPage() {
     if (d.organization_id) counts.set(d.organization_id, (counts.get(d.organization_id) ?? 0) + 1);
   }
 
-  const rows: OrgWithCount[] = orgs.map((o) => ({
-    ...o,
-    dataset_count: counts.get(o.id) ?? 0,
-  }));
+  const rows: OrgWithCount[] = orgs
+    .filter((o) => (counts.get(o.id) ?? 0) > 0)
+    .map((o) => ({
+      ...o,
+      dataset_count: counts.get(o.id) ?? 0,
+    }));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
