@@ -10,7 +10,8 @@ import { formatBytes, formatDate } from '@/lib/format';
 import { FormatBadge, ApiBadge, CsvBadge } from '@/components/Badges';
 import CopyButton from '@/components/CopyButton';
 import DatasetCard from '@/components/DatasetCard';
-import SeriesChart from '@/components/SeriesChart';
+import SeriesChartToggle from '@/components/SeriesChartToggle';
+import { computeYoY } from '@/lib/series-math';
 
 const PREVIEW_POINTS = 12;
 // chart reads deeper history (cached per dataset, downsampled for display)
@@ -216,15 +217,24 @@ export default async function DatasetDetailPage({
             )}
           </div>
           <div className="mt-4 space-y-6">
-            <SeriesChart
+            <SeriesChartToggle
               lang={lang}
-              series={chartBundle
+              levelLabel={dict.detail.chartLevel}
+              yoyLabel={dict.detail.chartYoy}
+              levels={chartBundle
                 .filter((s) => s.observations.length >= 2)
                 .map((s) => ({
                   name: (lang === 'zh' ? s.name_zh : s.name_en) ?? s.code,
                   unit: s.unit,
                   points: s.observations,
                 }))}
+              yoy={chartBundle
+                .map((s) => ({
+                  name: (lang === 'zh' ? s.name_zh : s.name_en) ?? s.code,
+                  unit: '%',
+                  points: computeYoY(s.observations, s.frequency),
+                }))
+                .filter((s) => s.points.length >= 2)}
             />
             {seriesPreview.map((s) => (
               <div key={s.code}>

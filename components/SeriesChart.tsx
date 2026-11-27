@@ -1,7 +1,10 @@
 /*
- * Server-rendered SVG line chart — zero dependencies, brand palette.
+ * SVG line chart — zero dependencies, brand palette.
  * Shared y-scale across series; last value annotated like a ticker chart.
+ * ('use client' so the YoY toggle wrapper can re-render it interactively.)
  */
+'use client';
+
 import type { Lang } from '@/lib/types';
 
 export interface ChartSeriesInput {

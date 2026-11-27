@@ -67,7 +67,9 @@
     "dataEmpty": "數據收集進行中 — pipeline 尚未成功寫入數據點。",
     "dataJsonLink": "完整數據 JSON",
     "points": "數據點",
-    "dataCsvLink": "下載 CSV"
+    "dataCsvLink": "下載 CSV",
+    "chartLevel": "水平值",
+    "chartYoy": "同比 %"
   },
   "organizations": {
     "title": "機構",
