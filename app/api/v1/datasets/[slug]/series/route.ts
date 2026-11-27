@@ -47,24 +47,20 @@ export async function GET(
     });
   }
 
-  const { data: obsRows } = await supabase
-    .from('observations')
-    .select('series_id, period, value')
-    .in(
-      'series_id',
-      series.map((s) => s.id),
-    )
-    .order('period', { ascending: false })
-    .limit(perSeries * series.length);
-
-  const bySeries = new Map<string, ObsRow[]>();
-  for (const row of (obsRows ?? []) as ObsRow[]) {
-    const list = bySeries.get(row.series_id) ?? [];
-    if (list.length < perSeries) {
-      list.push(row);
-      bySeries.set(row.series_id, list);
-    }
-  }
+  // fetch per-series: a single .in() query with a global limit starves
+  // later series when one has more rows than the limit
+  const obsBySeries = new Map<string, ObsRow[]>();
+  await Promise.all(
+    series.map(async (s) => {
+      const { data: rows } = await supabase
+        .from('observations')
+        .select('series_id, period, value')
+        .eq('series_id', s.id)
+        .order('period', { ascending: false })
+        .limit(perSeries);
+      obsBySeries.set(s.id, ((rows ?? []) as ObsRow[]).slice().reverse());
+    }),
+  );
 
   return NextResponse.json(
     {
@@ -75,11 +71,11 @@ export async function GET(
           name: { en: s.name_en, zh: s.name_zh },
           unit: s.unit,
           frequency: s.frequency,
-          count: bySeries.get(s.id)?.length ?? 0,
-          observations: (bySeries.get(s.id) ?? [])
-            .slice()
-            .reverse()
-            .map((o) => ({ period: o.period, value: o.value })),
+          count: obsBySeries.get(s.id)?.length ?? 0,
+          observations: (obsBySeries.get(s.id) ?? []).map((o) => ({
+            period: o.period,
+            value: o.value,
+          })),
         })),
       },
       meta: { count: series.length, limit: perSeries },
