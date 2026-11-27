@@ -36,17 +36,28 @@ const getApiSeriesBundle = cachedFetch(
     if (series.length === 0) return [];
 
     // fetch per-series: a single .in() query with a global limit starves
-    // later series when one has more rows than the limit
+    // later series when one has more rows than the limit. Page through in
+    // ascending ranges — PostgREST clamps any single response to max_rows.
     const obsBySeries = new Map<string, ObsRow[]>();
     await Promise.all(
       series.map(async (s) => {
-        const { data: rows } = await supabase
-          .from('observations')
-          .select('series_id, period, value')
-          .eq('series_id', s.id)
-          .order('period', { ascending: false })
-          .limit(limit);
-        obsBySeries.set(s.id, ((rows ?? []) as ObsRow[]).slice().reverse());
+        const out: ObsRow[] = [];
+        const pageSize = 1000;
+        let from = 0;
+        while (out.length < limit) {
+          const take = Math.min(pageSize, limit - out.length);
+          const { data } = await supabase
+            .from('observations')
+            .select('series_id, period, value')
+            .eq('series_id', s.id)
+            .order('period', { ascending: false })
+            .range(from, from + take - 1);
+          const rows = (data ?? []) as ObsRow[];
+          out.push(...rows);
+          if (rows.length < take) break;
+          from += take;
+        }
+        obsBySeries.set(s.id, out.slice().reverse());
       }),
     );
 
