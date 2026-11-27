@@ -75,7 +75,9 @@ export async function fetchDatasets(f: DatasetFilters): Promise<CatalogResult> {
     }
     if (fmtSet.size > 0) {
       const formats = (d.resources ?? []).map((r) => r.format);
-      if (!formats.some((fmt) => fmtSet.has(fmt))) return false;
+      // every api_enabled dataset is downloadable as CSV via ?format=csv
+      const offers = d.api_enabled ? [...formats, 'CSV'] : formats;
+      if (!offers.some((fmt) => fmtSet.has(fmt))) return false;
     }
     if (f.api && !d.api_enabled) return false;
     return true;
@@ -116,8 +118,11 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
   const fmtCounts = new Map<string, number>();
   for (const d of datasets) {
     if (d.organization_id) orgCounts.set(d.organization_id, (orgCounts.get(d.organization_id) ?? 0) + 1);
-    for (const r of d.resources ?? []) {
-      fmtCounts.set(r.format, (fmtCounts.get(r.format) ?? 0) + 1);
+    const formats = (d.resources ?? []).map((r) => r.format);
+    // AIData CSV export endpoint counts as a CSV format offering
+    if (d.api_enabled && !formats.includes('CSV')) formats.push('CSV');
+    for (const fmt of formats) {
+      fmtCounts.set(fmt, (fmtCounts.get(fmt) ?? 0) + 1);
     }
   }
 
