@@ -79,7 +79,7 @@ export default async function DatasetDetailPage({
   const resources = [...(dataset.resources ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const related = await getRelated(dataset);
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aidata.vercel.app'}/api/v1/datasets/${dataset.slug}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aidata-liart.vercel.app'}/api/v1/datasets/${dataset.slug}`;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
