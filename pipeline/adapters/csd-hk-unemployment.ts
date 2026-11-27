@@ -1,11 +1,11 @@
-import type { Adapter, SeriesPoints, SeriesMeta } from '../lib/types';
+import type { Adapter, AdapterSeriesResult, AdapterSeriesMeta } from '../lib/types';
 import { fetchMdt, fetchComp, CSD_BASE } from '../lib/csd';
 
 const TABLE_ID = '210-06103'; // headline unemployment rate (seasonally adjusted)
 const STAT_VAR = 'UR';
 const STAT_PRES = 'Rate_1dp_%_n';
 
-const meta: SeriesMeta = {
+const meta: AdapterSeriesMeta = {
   code: 'csd_hk_unemployment_rate',
   nameEn: 'Hong Kong unemployment rate (seasonally adjusted)',
   nameZh: '香港失業率（經季節性調整）',
@@ -14,11 +14,11 @@ const meta: SeriesMeta = {
   sourceUrl: `${CSD_BASE}/en/web_table.html?id=210-06103`,
 };
 
-export const adapter: Adapter = {
+export const csdHkUnemployment: Adapter = {
   id: 'csd-hk-unemployment',
   codePrefixes: ['csd_hk_unemployment'],
   seriesMeta: [meta],
-  run: async (): Promise<SeriesPoints[]> => {
+  run: async (): Promise<AdapterSeriesResult[]> => {
     const comp = await fetchComp(TABLE_ID);
     const rows = await fetchMdt(comp.theme_id, TABLE_ID, STAT_VAR, STAT_PRES);
     const points = rows
@@ -31,6 +31,6 @@ export const adapter: Adapter = {
         raw: r,
       }))
       .filter((p) => Number.isFinite(p.value));
-    return [{ series: meta, points }];
+    return [{ code: meta.code, points }];
   },
 };

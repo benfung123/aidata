@@ -1,4 +1,4 @@
-import type { Adapter, SeriesPoints, SeriesMeta } from '../lib/types';
+import type { Adapter, AdapterSeriesResult, AdapterSeriesMeta } from '../lib/types';
 import { fetchMdt, fetchComp, CSD_BASE } from '../lib/csd';
 
 const TABLE_ID = '620-67001'; // retail sales
@@ -6,7 +6,7 @@ const TABLE_ID = '620-67001'; // retail sales
 const STAT_VAR = 'VAL_IDX_RS';
 const STAT_PRES = 'Raw_1dp_idx_n';
 
-const meta: SeriesMeta = {
+const meta: AdapterSeriesMeta = {
   code: 'csd_hk_retail_value_index',
   nameEn: 'Hong Kong retail sales value index',
   nameZh: '香港零售業銷貨價值指數',
@@ -15,11 +15,11 @@ const meta: SeriesMeta = {
   sourceUrl: `${CSD_BASE}/en/web_table.html?id=620-67001`,
 };
 
-export const adapter: Adapter = {
+export const csdHkRetail: Adapter = {
   id: 'csd-hk-retail',
   codePrefixes: ['csd_hk_retail'],
   seriesMeta: [meta],
-  run: async (): Promise<SeriesPoints[]> => {
+  run: async (): Promise<AdapterSeriesResult[]> => {
     const comp = await fetchComp(TABLE_ID);
     const rows = await fetchMdt(comp.theme_id, TABLE_ID, STAT_VAR, STAT_PRES);
     const points = rows
@@ -30,6 +30,6 @@ export const adapter: Adapter = {
         raw: r,
       }))
       .filter((p) => Number.isFinite(p.value));
-    return [{ series: meta, points }];
+    return [{ code: meta.code, points }];
   },
 };
