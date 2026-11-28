@@ -5,6 +5,8 @@
 // Verified 2026-11-28: 2026-10 CSVs return HTTP 200; matrix layout parsed below.
 import type { Adapter, AdapterSeriesResult, SeriesPoint } from '../lib/types';
 import { latestLandsdSummaryCsvs } from '../lib/datagovhk';
+import { upsertResourceByName } from '../lib/resources';
+import { getSupabase } from '../lib/supabase';
 
 const CKAN_PAGE =
   'https://data.gov.hk/en-data/dataset/hk-landsd-openmap-summary-land-transaction-applications';
@@ -20,9 +22,19 @@ const TX_TYPES = [
 
 type Flow = 'received' | 'under_processing';
 
-const FLOW_META: Record<Flow, { en: string; zh: string }> = {
-  received: { en: 'newly received applications', zh: '新收到申請' },
-  under_processing: { en: 'applications under processing', zh: '處理中申請' },
+const FLOW_META: Record<Flow, { en: string; zh: string; totalEn: string; totalZh: string }> = {
+  received: {
+    en: 'newly received',
+    zh: '新收',
+    totalEn: 'HK land transaction applications — newly received (total cases)',
+    totalZh: '香港新收土地交易申請（總數，宗）',
+  },
+  under_processing: {
+    en: 'under processing',
+    zh: '處理中',
+    totalEn: 'HK land transaction applications — under processing (total cases)',
+    totalZh: '香港處理中土地交易申請（總數，宗）',
+  },
 };
 
 function seriesMetaFor(flow: Flow, type?: (typeof TX_TYPES)[number]) {
@@ -31,10 +43,10 @@ function seriesMetaFor(flow: Flow, type?: (typeof TX_TYPES)[number]) {
     code: type ? `landsd_land_tx_${flow}_${type.key}` : `landsd_land_tx_${flow}_total`,
     nameEn: type
       ? `HK land transaction ${type.en} — ${flowMeta.en} (cases)`
-      : `HK land transaction applications — ${flowMeta.en} (total cases)`,
+      : flowMeta.totalEn,
     nameZh: type
       ? `香港土地交易（${type.zh}）${flowMeta.zh}（宗）`
-      : `香港土地交易申請${flowMeta.zh}（總數，宗）`,
+      : flowMeta.totalZh,
     unit: '宗',
     frequency: 'monthly' as const,
     sourceUrl: CKAN_PAGE,
@@ -99,6 +111,28 @@ export const landsdHkLandTransactions: Adapter = {
   async run(): Promise<AdapterSeriesResult[]> {
     const latest = await latestLandsdSummaryCsvs();
     console.log(`  LandsD summary month: ${latest.month}`);
+
+    // keep the dataset page pointing at the freshest monthly CSVs
+    const { data: ds } = await getSupabase()
+      .from('datasets').select('id').eq('slug', 'hk-land-transactions').maybeSingle();
+    if (ds) {
+      await upsertResourceByName(ds.id as string, {
+        name_en: 'Latest monthly summary — Under Processing (CSV)',
+        name_zh: `最新每月摘要 — 處理中（CSV，${latest.month}）`,
+        format: 'CSV',
+        url: latest.underProcessingUrl!,
+        sort_order: 3,
+      });
+      if (latest.receivedUrl) {
+        await upsertResourceByName(ds.id as string, {
+          name_en: 'Latest monthly summary — New Received (CSV)',
+          name_zh: `最新每月摘要 — 新收（CSV，${latest.month}）`,
+          format: 'CSV',
+          url: latest.receivedUrl,
+          sort_order: 4,
+        });
+      }
+    }
 
     const results = new Map<string, SeriesPoint[]>();
     const push = (flow: Flow, parsed: { period: string; counts: number[] }) => {

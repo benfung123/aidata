@@ -37,7 +37,6 @@ export const masSgSora: Adapter = {
       unit: '%',
       frequency: 'daily',
       sourceUrl: 'https://www.mas.gov.sg/monetary-policy/sora',
-      dataUrl: 'https://eservices.mas.gov.sg/statistics/dir/DomesticInterestRates.aspx',
     },
     {
       code: 'mas_sg_sora_3m_compounded',
@@ -46,7 +45,6 @@ export const masSgSora: Adapter = {
       unit: '%',
       frequency: 'daily',
       sourceUrl: 'https://www.mas.gov.sg/monetary-policy/sora',
-      dataUrl: 'https://eservices.mas.gov.sg/statistics/dir/DomesticInterestRates.aspx',
     },
   ],
   async run(): Promise<AdapterSeriesResult[]> {

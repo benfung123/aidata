@@ -61,6 +61,15 @@ async function fetchSeries(iadbCode: string): Promise<SeriesPoint[]> {
   return points;
 }
 
+// Resource link uses a rolling 2-year window (computed at catalog/import time)
+// so the downloadable CSV on the dataset page stays current.
+function rollingCsvUrl(seriesCode: string): string {
+  const now = new Date();
+  const from = `01/Jan/${now.getUTCFullYear() - 1}`;
+  const to = `01/${MON[(now.getUTCMonth() + 1) % 12]}/${now.getUTCMonth() === 11 ? now.getUTCFullYear() + 1 : now.getUTCFullYear()}`;
+  return csvUrl(seriesCode, from, to);
+}
+
 export const boeUkRates: Adapter = {
   id: 'boe-uk-rates',
   codePrefixes: ['boe_uk_'],
@@ -71,7 +80,7 @@ export const boeUkRates: Adapter = {
     unit: '%',
     frequency: 'daily' as const,
     sourceUrl: 'https://www.bankofengland.co.uk/boeapps/database/',
-    dataUrl: csvUrl(s.iadb, '01/Jan/2025', '01/Jan/2026'),
+    dataUrl: rollingCsvUrl(s.iadb),
   })),
   async run(): Promise<AdapterSeriesResult[]> {
     const out: AdapterSeriesResult[] = [];

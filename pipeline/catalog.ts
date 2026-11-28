@@ -158,10 +158,10 @@ const DATASETS: DatasetDef[] = [
     source_url: 'https://www.landsd.gov.hk/en/resources/land-info-stat/dev-control-compliance/consent.html',
     extraResources: [
       {
-        name_en: 'Monthly pending applications (PDF, latest verified example)',
-        name_zh: '每月處理中申請報告（PDF，最近核實示例）',
+        name_en: 'Monthly pending applications (PDF, latest: 2026-10)',
+        name_zh: '每月處理中申請報告（PDF，最新：2026-10）',
         format: 'PDF',
-        url: 'https://www.landsd.gov.hk/doc/en/consent/monthly/t2_2510wac_e.pdf',
+        url: 'https://www.landsd.gov.hk/doc/en/consent/monthly/t2_2610wac_e.pdf',
         sort_order: 2,
       },
       {
@@ -318,25 +318,39 @@ export async function runCatalog(): Promise<void> {
           next_run_at: nowIso, last_status: 'never',
         });
       }
+    }
 
-      // register the raw data-file/API link as a resource (idempotent by url)
-      if (meta.dataUrl) {
-        const isCsv = meta.dataUrl.split('?')[0].toLowerCase().endsWith('.csv');
-        const res = {
-          name_en: isCsv ? 'Source data file (CSV)' : 'Source data API (JSON)',
-          name_zh: isCsv ? '原始數據檔案（CSV）' : '原始數據 API（JSON）',
-          format: isCsv ? 'CSV' : 'JSON',
-          url: meta.dataUrl,
-          sort_order: 2,
-        };
-        const { data: exR } = await supabase.from('resources').select('id').eq('dataset_id', ds.id).eq('url', res.url).maybeSingle();
-        if (exR) {
-          const { error } = await supabase.from('resources').update(res).eq('id', exR.id);
-          if (error) throw new Error(`resource update ${res.url}: ${error.message}`);
-        } else {
-          const { error } = await supabase.from('resources').insert({ ...res, dataset_id: ds.id });
-          if (error) throw new Error(`resource insert ${res.url}: ${error.message}`);
-        }
+    // register raw data-file/API links as resources (idempotent by url).
+    // Shared endpoints (same dataUrl for several series) keep a plain name;
+    // per-series files get the series code appended.
+    const byUrl = new Map<string, string[]>();
+    for (const meta of adapter.seriesMeta) {
+      if (!meta.dataUrl) continue;
+      const list = byUrl.get(meta.dataUrl) ?? [];
+      list.push(meta.code);
+      byUrl.set(meta.dataUrl, list);
+    }
+    for (const [url, codes] of byUrl) {
+      const isCsv =
+        url.includes('csv.x=yes') || // BoE IADB CSV endpoint is an .asp URL
+        url.split('?')[0].toLowerCase().endsWith('.csv');
+      const shared = codes.length > 1;
+      const baseEn = isCsv ? 'Source data file (CSV)' : 'Source data API (JSON)';
+      const baseZh = isCsv ? '原始數據檔案（CSV）' : '原始數據 API（JSON）';
+      const res = {
+        name_en: shared ? baseEn : `${baseEn} · ${codes[0]}`,
+        name_zh: shared ? baseZh : `${baseZh} · ${codes[0]}`,
+        format: isCsv ? 'CSV' : 'JSON',
+        url,
+        sort_order: 2,
+      };
+      const { data: exR } = await supabase.from('resources').select('id').eq('dataset_id', ds.id).eq('url', res.url).maybeSingle();
+      if (exR) {
+        const { error } = await supabase.from('resources').update(res).eq('id', exR.id);
+        if (error) throw new Error(`resource update ${res.url}: ${error.message}`);
+      } else {
+        const { error } = await supabase.from('resources').insert({ ...res, dataset_id: ds.id });
+        if (error) throw new Error(`resource insert ${res.url}: ${error.message}`);
       }
     }
   }
