@@ -11,6 +11,11 @@ import { momSgUnemployment } from './mom-sg-unemployment';
 import { boeUkRates } from './boe-uk-rates';
 import { masSgSora } from './mas-sg-sora';
 import { landsdHkLandTransactions } from './landsd-hk-land-transactions';
+import { csdHkVisitorArrivals } from './csd-hk-visitor-arrivals';
+import { csdHkVisitorExpenditure } from './csd-hk-visitor-expenditure';
+import { cstbHkHotel } from './cstb-hk-hotel';
+import { immdHkVisa } from './immd-hk-visa';
+import { rvdHkPropertyIndices } from './rvd-hk-property-indices';
 
 export const adapters: Adapter[] = [
   hkmaHibor,
@@ -24,6 +29,11 @@ export const adapters: Adapter[] = [
   boeUkRates,
   masSgSora,
   landsdHkLandTransactions,
+  csdHkVisitorArrivals,
+  csdHkVisitorExpenditure,
+  cstbHkHotel,
+  immdHkVisa,
+  rvdHkPropertyIndices,
 ];
 
 export function adapterForCode(code: string): Adapter | undefined {

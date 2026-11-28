@@ -20,6 +20,11 @@ const ADAPTER_DATASET: Record<string, string> = {
   'boe-uk-rates': 'uk-bank-rate',
   'mas-sg-sora': 'sg-sora',
   'landsd-hk-land-transactions': 'hk-land-transactions',
+  'csd-hk-visitor-arrivals': 'hk-visitor-arrivals',
+  'csd-hk-visitor-expenditure': 'hk-visitor-expenditure',
+  'cstb-hk-hotel': 'hk-hotel-supply',
+  'immd-hk-visa': 'hk-visa-approvals',
+  'rvd-hk-property-indices': 'hk-property-indices',
 };
 
 const ORGS = [
@@ -31,6 +36,9 @@ const ORGS = [
   { slug: 'landsd', name_en: 'Lands Department (HKSAR)', name_zh: '地政總署', website: 'https://www.landsd.gov.hk' },
   { slug: 'boe', name_en: 'Bank of England', name_zh: '英倫銀行', website: 'https://www.bankofengland.co.uk' },
   { slug: 'mas_sg', name_en: 'Monetary Authority of Singapore', name_zh: '新加坡金融管理局', website: 'https://www.mas.gov.sg' },
+  { slug: 'cstb', name_en: 'Culture, Sports and Tourism Bureau', name_zh: '文化體育及旅遊局', website: 'https://www.hktb.com' },
+  { slug: 'immd', name_en: 'Immigration Department (HKSAR)', name_zh: '入境事務處', website: 'https://www.immd.gov.hk' },
+  { slug: 'rvd', name_en: 'Rating and Valuation Department (HKSAR)', name_zh: '差餉物業估價署', website: 'https://www.rvd.gov.hk' },
 ];
 
 interface DatasetDef {
@@ -216,6 +224,66 @@ const DATASETS: DatasetDef[] = [
     license: 'https://www.mas.gov.sg/terms-and-conditions',
     source_url: 'https://www.mas.gov.sg/monetary-policy/sora',
   },
+  {
+    slug: 'hk-visitor-arrivals',
+    org: 'csd',
+    categories: ['tourism', 'economy'],
+    title_en: 'Hong Kong Visitor Arrivals',
+    title_zh: '香港旅客入境人次',
+    desc_en: 'Monthly total visitor arrivals to Hong Kong, plus the annual overnight / same-day in-town split and average length of stay, from the Census and Statistics Department inbound tourism tables (650-80001, 650-80005).',
+    desc_zh: '政府統計處入境旅遊統計表（650-80001、650-80005）：每月旅客入境總人次，以及按年劃分的過夜／不過夜旅客人次與平均逗留時間。',
+    frequency: '每月 / 每年',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://www.censtatd.gov.hk/en/web_table.html?id=650-80001',
+  },
+  {
+    slug: 'hk-visitor-expenditure',
+    org: 'csd',
+    categories: ['tourism', 'economy'],
+    title_en: 'Hong Kong Per-capita Visitor Spending',
+    title_zh: '香港旅客人均消費',
+    desc_en: 'Annual per-capita spending of overnight and same-day in-town visitors to Hong Kong (all markets, plus mainland China overnight visitors), compiled by the Census and Statistics Department from the Visitor Expenditure Survey (table 650-80004).',
+    desc_zh: '政府統計處旅客消費統計調查（表 650-80004）：過夜及不過夜旅客人均消費（所有市場及中國內地過夜旅客），按年公布。',
+    frequency: '每年',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://www.censtatd.gov.hk/en/web_table.html?id=650-80004',
+  },
+  {
+    slug: 'hk-hotel-supply',
+    org: 'cstb',
+    categories: ['tourism'],
+    title_en: 'HK Hotel Room Supply & Occupancy (CSTB)',
+    title_zh: '香港酒店房間供應及入住率（文體旅局）',
+    desc_en: 'Monthly Hong Kong hotel room supply (total and by category: High Tariff A, High Tariff B, Medium) and overall hotel room occupancy rate, published by the Culture, Sports and Tourism Bureau / Hong Kong Tourism Board. CSTB only publishes roughly the last five years; the by-category room breakdown stopped updating after 2024-06.',
+    desc_zh: '文化體育及旅遊局／香港旅遊發展局每月公布的香港酒店房間供應（總數及高房價甲級、高房價乙級、中價分類）及整體酒店房間入住率。文體旅局僅提供約最近五年數據；分類房間供應自 2024-06 起停止更新。',
+    frequency: '每月',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://data.gov.hk/en-data/dataset/hk-cstb-cstb_tc-tc-hotel-room-occupancy-rate',
+  },
+  {
+    slug: 'hk-visa-approvals',
+    org: 'immd',
+    categories: ['economy'],
+    title_en: 'HK Visa / Entry Permit Applications Approved (ImmD)',
+    title_zh: '香港簽證／進入許可獲批准申請（入境處）',
+    desc_en: 'Annual visa / entry-permit applications approved by the Immigration Department for Hong Kong admission schemes: Top Talent Pass (TTPS), ASMTP, IANG, General Employment Policy, TechTAS, student and dependant visas. QMAS is not included — ImmD publishes only quota-allotted statistics for QMAS.',
+    desc_zh: '入境事務處每年公布的人才入境計劃獲批准申請：高端人才通行證計劃（高才通）、輸入內地人才計劃（專才）、非本地畢業生留港／回港就業安排（IANG）、一般就業政策、科技人才入境計劃、學生及受養人簽證／進入許可。優才計劃（QMAS）不在此列——入境處僅公布其配額分配統計。',
+    frequency: '每年',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://data.gov.hk/en-data/organization/hk-immd',
+  },
+  {
+    slug: 'hk-property-indices',
+    org: 'rvd',
+    categories: ['housing', 'economy'],
+    title_en: 'HK Private Property Price & Rental Indices (RVD)',
+    title_zh: '香港私人物業售價及租金指數（差估署）',
+    desc_en: 'Monthly private property indices for Hong Kong (1999 = 100) published by the Rating and Valuation Department: domestic price and rental indices (all classes), office price and rental indices (all grades), retail and flatted-factory price and rental indices, from the machine-readable history workbooks.',
+    desc_zh: '差餉物業估價署每月公布的香港私人物業指數（1999 年 = 100）：私人住宅售價及租金指數（所有類別）、私人寫字樓售價及租金指數（所有級別）、私人零售業樓宇及分層工廠大廈售價與租金指數，取自官方歷史數據工作簿。',
+    frequency: '每月',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://www.rvd.gov.hk/en/publications/property_market_statistics.html',
+  },
 ];
 
 async function upsertBySlug(table: string, slug: string, row: Record<string, unknown>): Promise<string> {
@@ -248,6 +316,7 @@ export async function runCatalog(): Promise<void> {
     { slug: 'finance', name_en: 'Finance', name_zh: '金融', icon: '💰', sort_order: 6 },
     { slug: 'economy', name_en: 'Economy', name_zh: '經濟', icon: '📈', sort_order: 7 },
     { slug: 'housing', name_en: 'Housing & Land', name_zh: '房屋及土地', icon: '🏘️', sort_order: 8 },
+    { slug: 'tourism', name_en: 'Tourism', name_zh: '旅遊', icon: '🧳', sort_order: 9 },
   ];
   for (const c of ENSURE_CATS) {
     if (catIds[c.slug]) continue;
