@@ -45,7 +45,7 @@ create table if not exists public.resources (
   dataset_id uuid not null references public.datasets(id) on delete cascade,
   name_en text not null,
   name_zh text not null,
-  format text not null check (format in ('CSV','JSON','XML','XLSX','GEOJSON','API','HTML')),
+  format text not null check (format in ('CSV','JSON','XML','XLSX','GEOJSON','API','HTML','PDF','GML')),
   url text not null,
   size_bytes bigint,
   sort_order int not null default 0

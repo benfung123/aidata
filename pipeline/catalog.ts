@@ -11,11 +11,15 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aidata-liart.vercel.ap
 const ADAPTER_DATASET: Record<string, string> = {
   'hkma-hibor': 'hk-hibor',
   'ons-uk-gdp': 'uk-gdp',
+  'ons-uk-unemployment': 'uk-unemployment',
   'csd-hk-gdp': 'hk-gdp',
   'csd-hk-unemployment': 'hk-unemployment',
   'csd-hk-retail': 'hk-retail-sales',
   'singstat-sg-gdp': 'sg-gdp',
   'mom-sg-unemployment': 'sg-unemployment',
+  'boe-uk-rates': 'uk-bank-rate',
+  'mas-sg-sora': 'sg-sora',
+  'landsd-hk-land-transactions': 'hk-land-transactions',
 };
 
 const ORGS = [
@@ -24,6 +28,9 @@ const ORGS = [
   { slug: 'ons', name_en: 'Office for National Statistics', name_zh: '英國國家統計局', website: 'https://www.ons.gov.uk' },
   { slug: 'singstat', name_en: 'Singapore Department of Statistics', name_zh: '新加坡統計局', website: 'https://www.singstat.gov.sg' },
   { slug: 'mom_sg', name_en: 'Ministry of Manpower (Singapore)', name_zh: '新加坡人力部', website: 'https://www.mom.gov.sg' },
+  { slug: 'landsd', name_en: 'Lands Department (HKSAR)', name_zh: '地政總署', website: 'https://www.landsd.gov.hk' },
+  { slug: 'boe', name_en: 'Bank of England', name_zh: '英倫銀行', website: 'https://www.bankofengland.co.uk' },
+  { slug: 'mas_sg', name_en: 'Monetary Authority of Singapore', name_zh: '新加坡金融管理局', website: 'https://www.mas.gov.sg' },
 ];
 
 interface DatasetDef {
@@ -37,6 +44,8 @@ interface DatasetDef {
   frequency: string; // catalog display text
   license: string;
   source_url: string; // original page → HTML resource
+  /** extra source links registered as resources (for catalog-only datasets) */
+  extraResources?: { name_en: string; name_zh: string; format: string; url: string; sort_order: number }[];
 }
 
 const DATASETS: DatasetDef[] = [
@@ -124,6 +133,89 @@ const DATASETS: DatasetDef[] = [
     license: 'https://www.mom.gov.sg/terms-of-use',
     source_url: 'https://stats.mom.gov.sg/publications/statistical-tables-unemployment/',
   },
+  {
+    slug: 'hk-land-transactions',
+    org: 'landsd',
+    categories: ['housing', 'economy'],
+    title_en: 'HK Land Transaction Applications (LandsD)',
+    title_zh: '香港土地交易申請（地政總署）',
+    desc_en: 'Monthly summary of non-NTEH land transaction applications — land exchange, lease modification, lot extension and private treaty grant — newly received and under processing, published by the Lands Department via data.gov.hk.',
+    desc_zh: '地政總署每月經 data.gov.hk 公布的非新界豁免管制土地交易申請摘要，涵蓋土地交換、契約修訂、地段延長及私人條約批地的新收與處理中個案。',
+    frequency: '每月',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://data.gov.hk/en-data/dataset/hk-landsd-openmap-summary-land-transaction-applications',
+  },
+  {
+    slug: 'hk-presale-consent',
+    org: 'landsd',
+    categories: ['housing'],
+    title_en: 'HK Presale Consent & Consent to Assign (LandsD)',
+    title_zh: '香港預售樓花及轉讓同意（地政總署）',
+    desc_en: 'Lands Department consents for the presale of uncompleted residential/non-residential developments and consents to assign. Monthly pending-application reports (PDF since 1994), issued-consent geospatial data (GML via CSDI), and quarterly press-release statistics.',
+    desc_zh: '地政總署就未完成住宅／非住宅發展項目的預售樓花同意及轉讓同意書。每月處理中申請報告（1994 年起 PDF）、已批同意地理數據（經 CSDI 提供 GML）及每季新聞公報統計。',
+    frequency: '每月',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://www.landsd.gov.hk/en/resources/land-info-stat/dev-control-compliance/consent.html',
+    extraResources: [
+      {
+        name_en: 'Monthly pending applications (PDF, latest verified example)',
+        name_zh: '每月處理中申請報告（PDF，最近核實示例）',
+        format: 'PDF',
+        url: 'https://www.landsd.gov.hk/doc/en/consent/monthly/t2_2510wac_e.pdf',
+        sort_order: 2,
+      },
+      {
+        name_en: 'Issued presale consent — GML via CSDI geoportal',
+        name_zh: '已批預售同意 — 經 CSDI 地理資訊門戶提供 GML',
+        format: 'GML',
+        url: 'https://portal.csdi.gov.hk/geoportal/?datasetId=landsd_rcd_1637303511514_65978',
+        sort_order: 3,
+      },
+      {
+        name_en: 'data.gov.hk dataset (issued presale consent, residential)',
+        name_zh: 'data.gov.hk 數據集（已批預售同意，住宅）',
+        format: 'HTML',
+        url: 'https://data.gov.hk/en-data/dataset/hk-landsd-openmap-lao-pcrd',
+        sort_order: 4,
+      },
+    ],
+  },
+  {
+    slug: 'uk-bank-rate',
+    org: 'boe',
+    categories: ['finance', 'economy'],
+    title_en: 'UK Bank Rate & SONIA',
+    title_zh: '英國官方銀行利率及 SONIA',
+    desc_en: 'Daily official Bank Rate set by the Monetary Policy Committee and the Sterling Overnight Index Average (SONIA), from the Bank of England Interactive Statistical Database. Reuse permitted with acknowledgement ("Source: Bank of England").',
+    desc_zh: '英倫銀行互動統計數據庫每日公布的貨幣政策委員會官方銀行利率及英鎊隔夜平均利率（SONIA）。註明出處（“Source: Bank of England”）後可重用。',
+    frequency: '每日',
+    license: 'https://www.bankofengland.co.uk/statistics',
+    source_url: 'https://www.bankofengland.co.uk/boeapps/database/',
+  },
+  {
+    slug: 'uk-unemployment',
+    org: 'ons',
+    categories: ['economy'],
+    title_en: 'UK Unemployment Rate',
+    title_zh: '英國失業率',
+    desc_en: 'Monthly UK unemployment rate (aged 16 and over, seasonally adjusted), series MGSX from the Labour Force Survey, published by the Office for National Statistics.',
+    desc_zh: '英國國家統計局勞動力調查（Labour Force Survey）每月公布的英國失業率（16 歲或以上，經季節調整），系列編號 MGSX。',
+    frequency: '每月',
+    license: 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/',
+    source_url: 'https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms',
+  },
+  {
+    slug: 'sg-sora',
+    org: 'mas_sg',
+    categories: ['finance'],
+    title_en: 'Singapore Overnight Rate Average (SORA)',
+    title_zh: '新加坡隔夜利率平均（SORA）',
+    desc_en: 'Daily SORA and 3-month compounded SORA published by the Monetary Authority of Singapore — the benchmark for most floating-rate Singapore home loans since SOR (ceased 2023) and SIBOR (ceased end-2024) were retired.',
+    desc_zh: '新加坡金融管理局每日公布的新加坡隔夜利率平均及三個月複合 SORA——自 SOR（2023 年停用）及 SIBOR（2024 年底停用）退役後，大部分浮息按揭所用之基準。',
+    frequency: '每日',
+    license: 'https://www.mas.gov.sg/terms-and-conditions',
+    source_url: 'https://www.mas.gov.sg/monetary-policy/sora',
+  },
 ];
 
 async function upsertBySlug(table: string, slug: string, row: Record<string, unknown>): Promise<string> {
@@ -149,17 +241,23 @@ export async function runCatalog(): Promise<void> {
     orgIds[org.slug] = await upsertBySlug('organizations', org.slug, org);
   }
 
-  // categories: ensure economy exists, reuse the rest
+  // categories: ensure the core ones exist, reuse the rest
   const { data: cats } = await supabase.from('categories').select('*');
   for (const c of cats ?? []) catIds[c.slug] = c.id;
-  if (!catIds.economy) {
+  const ENSURE_CATS = [
+    { slug: 'finance', name_en: 'Finance', name_zh: '金融', icon: '💰', sort_order: 6 },
+    { slug: 'economy', name_en: 'Economy', name_zh: '經濟', icon: '📈', sort_order: 7 },
+    { slug: 'housing', name_en: 'Housing & Land', name_zh: '房屋及土地', icon: '🏘️', sort_order: 8 },
+  ];
+  for (const c of ENSURE_CATS) {
+    if (catIds[c.slug]) continue;
     const { data, error } = await supabase
       .from('categories')
-      .insert({ slug: 'economy', name_en: 'Economy', name_zh: '經濟', icon: '📈', sort_order: 7 })
+      .insert(c)
       .select('id').single();
-    if (error) throw new Error(`economy insert: ${error.message}`);
-    catIds.economy = data.id;
-    console.log('  + category economy');
+    if (error) throw new Error(`${c.slug} insert: ${error.message}`);
+    catIds[c.slug] = data.id;
+    console.log(`  + category ${c.slug}`);
   }
 
   const nowIso = new Date().toISOString();
@@ -176,17 +274,20 @@ export async function runCatalog(): Promise<void> {
       api_enabled: true,
     });
 
-    // resources: aidata API + original source page
+    // resources: aidata API + original source page + dataset-specific extras
     const resources = [
       { name_en: 'AIData JSON API', name_zh: 'AIData JSON API', format: 'API', url: `${SITE}/api/v1/datasets/${d.slug}`, sort_order: 0 },
       { name_en: 'Source page (HTML)', name_zh: '來源網頁（HTML）', format: 'HTML', url: d.source_url, sort_order: 1 },
+      ...(d.extraResources ?? []),
     ];
     for (const r of resources) {
       const { data: ex } = await supabase.from('resources').select('id').eq('dataset_id', datasetId).eq('url', r.url).maybeSingle();
       if (ex) {
-        await supabase.from('resources').update(r).eq('id', ex.id);
+        const { error } = await supabase.from('resources').update(r).eq('id', ex.id);
+        if (error) throw new Error(`resource update ${r.url}: ${error.message}`);
       } else {
-        await supabase.from('resources').insert({ ...r, dataset_id: datasetId });
+        const { error } = await supabase.from('resources').insert({ ...r, dataset_id: datasetId });
+        if (error) throw new Error(`resource insert ${r.url}: ${error.message}`);
       }
     }
 
@@ -229,8 +330,13 @@ export async function runCatalog(): Promise<void> {
           sort_order: 2,
         };
         const { data: exR } = await supabase.from('resources').select('id').eq('dataset_id', ds.id).eq('url', res.url).maybeSingle();
-        if (exR) await supabase.from('resources').update(res).eq('id', exR.id);
-        else await supabase.from('resources').insert({ ...res, dataset_id: ds.id });
+        if (exR) {
+          const { error } = await supabase.from('resources').update(res).eq('id', exR.id);
+          if (error) throw new Error(`resource update ${res.url}: ${error.message}`);
+        } else {
+          const { error } = await supabase.from('resources').insert({ ...res, dataset_id: ds.id });
+          if (error) throw new Error(`resource insert ${res.url}: ${error.message}`);
+        }
       }
     }
   }
