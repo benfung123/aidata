@@ -25,6 +25,7 @@ const ADAPTER_DATASET: Record<string, string> = {
   'cstb-hk-hotel': 'hk-hotel-supply',
   'immd-hk-visa': 'hk-visa-approvals',
   'rvd-hk-property-indices': 'hk-property-indices',
+  'hk-remaining-stocks': 'hk-remaining-stocks',
 };
 
 const ORGS = [
@@ -39,6 +40,7 @@ const ORGS = [
   { slug: 'cstb', name_en: 'Culture, Sports and Tourism Bureau', name_zh: '文化體育及旅遊局', website: 'https://www.hktb.com' },
   { slug: 'immd', name_en: 'Immigration Department (HKSAR)', name_zh: '入境事務處', website: 'https://www.immd.gov.hk' },
   { slug: 'rvd', name_en: 'Rating and Valuation Department (HKSAR)', name_zh: '差餉物業估價署', website: 'https://www.rvd.gov.hk' },
+  { slug: 'bd', name_en: 'Buildings Department (HKSAR)', name_zh: '屋宇署', website: 'https://www.bd.gov.hk' },
 ];
 
 interface DatasetDef {
@@ -283,6 +285,43 @@ const DATASETS: DatasetDef[] = [
     frequency: '每月',
     license: 'https://data.gov.hk/en/terms-and-conditions',
     source_url: 'https://www.rvd.gov.hk/en/publications/property_market_statistics.html',
+  },
+  {
+    slug: 'hk-remaining-stocks',
+    org: 'landsd',
+    categories: ['housing'],
+    title_en: 'HK First-hand Residential Remaining Stocks — Official Proxies',
+    title_zh: '香港一手住宅貨尾 — 官方公開數據代理指標',
+    desc_en:
+      'Official machine-readable proxy indicators for Hong Kong first-hand private residential unsold inventory (貨尾): Lands Department issued presale consents for residential developments (monthly counts and units covered, 1999–present, via the CSDI open geospatial WFS) and Buildings Department Monthly Digest completions (domestic units in new buildings with occupation permits issued, and domestic GFA completed, 2011–present). IMPORTANT: the Housing Bureau quarterly statistics on unsold units in completed projects are published as PDF only with no machine-readable route; actual unsold-unit counts, district-level breakdowns and developer-level breakdowns are therefore NOT included — see the Housing Bureau source link under resources for manual reference.',
+    desc_zh:
+      '香港一手私人住宅貨尾的官方機讀代理指標：地政總署已批預售樓花同意書（住宅發展項目，每月宗數及涵蓋單位數目，1999 年至今，經 CSDI 開放地理空間 WFS 提供）及屋宇署每月摘要落成量（新建築物獲發入伙紙的住宅單位數目及住宅總樓面面積，2011 年至今）。重要提示：房屋局每季公布的一手住宅貨尾統計僅以 PDF 發布，沒有機讀途徑，因此實際貨尾單位數、分區明細及發展商明細並未收錄——請參閱資源欄中的房屋局來源連結作人工查閱。',
+    frequency: '每月',
+    license: 'https://data.gov.hk/en/terms-and-conditions',
+    source_url: 'https://data.gov.hk/en-data/dataset/hk-landsd-openmap-lao-pcrd',
+    extraResources: [
+      {
+        name_en: 'BD Monthly Digests — Md13 occupation permits (CSV)',
+        name_zh: '屋宇署每月摘要 — Md13 入伙紙（CSV）',
+        format: 'CSV',
+        url: 'https://static.data.gov.hk/bd/opendata/monthlydigests/Md13.csv',
+        sort_order: 3,
+      },
+      {
+        name_en: 'BD Monthly Digests — Md17 completions (CSV)',
+        name_zh: '屋宇署每月摘要 — Md17 落成量（CSV）',
+        format: 'CSV',
+        url: 'https://static.data.gov.hk/bd/opendata/monthlydigests/Md17.csv',
+        sort_order: 4,
+      },
+      {
+        name_en: 'Housing Bureau quarterly first-hand market statistics (PDF only — unsold units not machine-readable)',
+        name_zh: '房屋局每季一手市場統計（僅 PDF——貨尾單位無機讀格式）',
+        format: 'HTML',
+        url: 'https://www.hb.gov.hk/eng/publications/housing/private/pshpm/index.html',
+        sort_order: 5,
+      },
+    ],
   },
 ];
 

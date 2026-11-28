@@ -16,6 +16,7 @@ import { csdHkVisitorExpenditure } from './csd-hk-visitor-expenditure';
 import { cstbHkHotel } from './cstb-hk-hotel';
 import { immdHkVisa } from './immd-hk-visa';
 import { rvdHkPropertyIndices } from './rvd-hk-property-indices';
+import { hkRemainingStocks } from './hk-remaining-stocks';
 
 export const adapters: Adapter[] = [
   hkmaHibor,
@@ -34,6 +35,7 @@ export const adapters: Adapter[] = [
   cstbHkHotel,
   immdHkVisa,
   rvdHkPropertyIndices,
+  hkRemainingStocks,
 ];
 
 export function adapterForCode(code: string): Adapter | undefined {
