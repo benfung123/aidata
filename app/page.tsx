@@ -60,20 +60,6 @@ export default async function HomePage() {
           <p className="mx-auto mt-4 max-w-2xl text-slate-600">
             {dict.home.heroSubtitle}
           </p>
-          <form action="/datasets" method="get" className="mx-auto mt-8 flex max-w-xl items-center gap-2">
-            <input
-              type="search"
-              name="q"
-              placeholder={dict.nav.searchPlaceholder}
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-lg bg-blue-700 px-5 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-800"
-            >
-              {dict.home.searchButton}
-            </button>
-          </form>
         </div>
       </section>
 
